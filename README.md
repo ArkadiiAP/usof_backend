@@ -2,8 +2,8 @@
 create an API for a future question and answer service for professional and enthusiast programmers
 
 ### Authentication module:
-**bold – POST - /api/auth/register bold** - registration of a new user, required parameters are [login, password, password confirmation, email]
-**bold - POST - /api/auth/<activation_token> bold** - confirm email and create user.
+** – POST - /api/auth/register ** - registration of a new user, required parameters are [login, password, password confirmation, email]
+** – POST - /api/auth/<activation_token> ** - confirm email and create user.
 **bold – POST - /api/auth/login bold** - log in user, required parameters are [login, email,password]. Only users with a confirmed email can sign in
 **bold – POST - /api/auth/logout bold** - log out authorized user
 **bold – POST - /api/auth/password-reset bold** - send a reset link to user email, requiredparameter is [email]
