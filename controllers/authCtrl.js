@@ -38,7 +38,7 @@ const authCtrl = {
             const mailOptions = {
                 to: req.body.email,
                 subject: 'Confirm email',
-                text: `http://localhost:3000/user/activate/${activation_token}`
+                text: `http://localhost:3000/activation/${activation_token}`
             }
             sendMail(mailOptions)
 
@@ -123,7 +123,7 @@ const authCtrl = {
             const mailOptions = {
                 to: req.body.email,
                 subject: 'Reset password',
-                text: `http://localhost:3000/user/resetPassword/${access_token}`
+                text: `http://localhost:3000/resetPassword/${access_token}`
             }
             sendMail(mailOptions)
             res.status(200).json({msg: "Re-send the password, please check your email."})

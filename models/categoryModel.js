@@ -1,7 +1,5 @@
 const sequelize = require('../db/db')
 const { DataTypes } = require('sequelize')
-// const Post = require('./postModel')
-// const Post_Category = require('./post_categoryModel')
 
 const Category = sequelize.define("Category", {
     id: {
@@ -21,8 +19,8 @@ const Category = sequelize.define("Category", {
     }
 })
 
+
 Category.sync()
-// Category.belongsToMany(Post, {through: Post_Category})
 
 
 module.exports = Category

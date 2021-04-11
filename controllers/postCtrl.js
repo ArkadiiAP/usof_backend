@@ -2,6 +2,7 @@ const Post = require('../models/postModel')
 const Comment = require('../models/commentModel')
 const Category = require('../models/categoryModel')
 const Like = require('../models/likeModel')
+const User = require('../models/userModel')
 const Post_Category = require('../models/post_categoryModel')
 
 const postCtrl = {
@@ -31,7 +32,8 @@ const postCtrl = {
     },
     getCommentsByPostId: async (req, res) => {
         try {
-            const comments = await Post.findAll({
+            const comments = await Post.findOne({
+                where: {id: req.params.post_id},
                 include: [{
                     model: Comment,
                     where: {post_id: req.params.post_id}
@@ -91,6 +93,7 @@ const postCtrl = {
     createPost: async (req, res) => {
         try {
             const { title, content, categories } = req.body
+            console.log(categories)
             const post = await Post.create({
                 title: title,
                 content: content,
@@ -114,32 +117,89 @@ const postCtrl = {
     createNewLikeByPostId: async (req, res) => {
         try {
             const { likeType } = req.body
+            const check = await Like.findOne({
+                where: {author: req.user.id, post_id: req.params.post_id}
+            })
+            if(check){
+                if(check.type === 'like'){
+                    if(likeType === 'like'){
+                        return res.status(400).json({msg: 'You can add 1 like/dislike only'})
+                    } else if (likeType === 'dislike'){
+                        const post = await Post.findOne({
+                            where: {id: req.params.post_id}
+                        })
+                        const user = await User.findOne({
+                            where: {id: post.author}
+                        })
+                        await post.update({
+                            rating: post.rating - 1
+                        })
+                        await user.update({
+                            rating: user.rating - 1
+                        })
+                        await check.destroy()
+                        return res.status(200).json({msg: 'Like deleted'})
+                    }
+                } else if(check.type === 'dislike'){
+                    if(likeType === 'dislike'){
+                        return res.status(400).json({msg: 'You can add 1 like/dislike only'})
+                    } else if (likeType === 'like'){
+                        const post = await Post.findOne({
+                            where: {id: req.params.post_id}
+                        })
+                        const user = await User.findOne({
+                            where: {id: post.author}
+                        })
+                        await post.update({
+                            rating: post.rating + 1
+                        })
+                        await user.update({
+                            rating: user.rating + 1
+                        })
+                        await check.destroy()
+                        return res.status(200).json({msg: 'Dislike deleted'})
+                    }
+                }
+            }
             const like = await Like.create({
                 author: req.user.id,
                 publishDate: new Date(),
                 post_id: req.params.post_id,
                 type: likeType
             })
-            if(type === 'like') {
+            if(!like) return res.status(400).json({msg: "Like not created"})
+            if(likeType === 'like') {
                 const post = await Post.findOne({
                     where: {id: req.params.post_id}
+                })
+                const user = await User.findOne({
+                    where: {id: post.author}
                 })
                 await post.update({
                     rating: post.rating + 1
                 })
+                await user.update({
+                    rating: user.rating + 1
+                })
+                return res.status(200).json({msg: "Like created"})
             }
-            if(type === 'dislike') {
+            if(likeType === 'dislike') {
                 const post = await Post.findOne({
                     where: {id: req.params.post_id}
+                })
+                const user = await User.findOne({
+                    where: {id: post.author}
                 })
                 await post.update({
                     rating: post.rating - 1
                 })
+                await user.update({
+                    rating: user.rating - 1
+                })
+                return res.status(200).json({msg: "Dislike created"})
             }
-            if(!like) return res.status(400).json({msg: "Like not created"})
-            return res.status(200).json({msg: "Like created"})
         } catch (err) {
-
+            return res.status(500).json({msg: err.message})
         }
     },
     updatePostById: async (req, res) => {
@@ -151,7 +211,6 @@ const postCtrl = {
             await post.update({
                 title: title ? title : post.title,
                 content: content ? content : post.content,
-                categories: categories ? categories : post.categories
             })
         }
         if(post.author !== req.user.id) return res.status(401).json({msg: "Only the author can update the post"})
@@ -207,7 +266,6 @@ const postCtrl = {
             return res.status(500).json({msg: err.message})
         }
     }
-
 }
 
 module.exports = postCtrl

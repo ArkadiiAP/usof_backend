@@ -2,8 +2,6 @@ const sequelize = require('../db/db')
 const { DataTypes } = require('sequelize')
 const Comment = require('./commentModel')
 const Like = require('./likeModel')
-// const Category = require('./categoryModel')
-// const Post_Category = require('./post_categoryModel')
 
 const Post = sequelize.define("Post", {
     id: {
@@ -27,10 +25,6 @@ const Post = sequelize.define("Post", {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    // categories: {
-    //     type: DataTypes.JSON,
-    //     allowNull: false
-    // },
     rating: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
@@ -48,9 +42,7 @@ Post.hasMany(Like, {
     onDelete: "cascade"
 })
 
+
 Post.sync()
-
-
-// Post.belongsToMany(Category, {through: Post_Category})
 
 module.exports = Post
