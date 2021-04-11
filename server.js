@@ -10,13 +10,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 app.use(cookieParser())
-// app.use(upload.single('avatar'))
-// app.use(fileUpload({
-//     useTempFiles: true
-// }))
-// app.use('/api', (req, res, next) => {
-//     res.json({msg: "Hello"})
-// })
+app.use(express.static('avatars'))
 
 // async function test(){
 //   try {
@@ -28,7 +22,6 @@ app.use(cookieParser())
 // }
 //
 // test();
-
 
 app.use('/api/auth', require('./routers/authRouter'))
 app.use('/api/users', require('./routers/userRouter'))

@@ -1,9 +1,9 @@
 const Category = require('../models/categoryModel')
 const Post = require('../models/postModel')
-// const Post_Category = require('../models/post_categoryModel')
+const Post_Category = require('../models/post_categoryModel')
 
 const categoryCtrl = {
-    getAllCategories: async (req, res) => {
+    getAllCategoriesWithPagination: async (req, res) => {
         try {
             await Category.findAndCountAll({
                 limit: 4,
@@ -13,6 +13,16 @@ const categoryCtrl = {
             })
         }
          catch (err) {
+            return res.status(500).json({msg: err.message})
+        }
+    },
+    getAllCategories: async (req, res) => {
+        try {
+            await Category.findAll()
+              .then(result => {
+                  return res.status(200).json(result)
+              })
+        } catch (err){
             return res.status(500).json({msg: err.message})
         }
     },
@@ -30,11 +40,13 @@ const categoryCtrl = {
     },
     getPostsByCategoryId: async (req, res) => {
         try {
-            const posts = await Category.findOne({
-                where: {id: req.params.category_id},
+            const posts = await Post.findAndCountAll({
+              limit: 4,
+              offset: req.query.page * 4 - 4,
                 include: [{
-                    model: Post,
-                    as: "posts"
+                    model: Category,
+                    where: {id: req.params.category_id},
+                    as: "categories"
                 }]
             })
             if(!posts)
@@ -47,6 +59,11 @@ const categoryCtrl = {
     createNewCategory: async (req, res) => {
         try {
             const { title, description } = req.body
+             const category = await Category.findOne({
+                where: {title: title}
+            })
+            if(category)
+                return res.status(400).json({msg: "This category already exist"})
             await Category.create({
                 title: title,
                 description: description

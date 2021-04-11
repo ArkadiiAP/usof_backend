@@ -37,4 +37,3 @@ Category.belongsToMany(Post, {
 
 
 module.exports = Post_Category
-
